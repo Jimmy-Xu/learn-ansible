@@ -1,0 +1,16 @@
+---
+- hosts: all
+  connection: local
+  user: "{{lookup('env','USER')}}"
+  sudo: yes
+  sudo_user: root
+  vars:
+    _HOSTNAME: vm_centos7
+  vars_files:
+    - ./etc/secret
+  tasks:
+    - debug: msg="ansible distribution - {{ansible_distribution}}, release - {{ansible_distribution_release}}, {{ ansible_lsb.major_release }}"
+    - include: ./book/play_centos7.yml
+      when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux'
+    - include: ./book/play_fedora23.yml
+      when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'

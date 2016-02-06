@@ -1,10 +1,11 @@
 ---
 - hosts: all
   connection: local
+  user: "{{lookup('env','USER')}}"
   sudo: yes
-  sudo_user: "{{lookup('env','USER')}}"
+  sudo_user: root
   vars:
-    _HOSTNAME: vm_fedora23
+    _HOSTNAME: vm_fedora
   vars_files:
     - ./etc/secret
   tasks:
