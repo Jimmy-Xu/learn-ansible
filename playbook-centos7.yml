@@ -1,0 +1,46 @@
+---
+- hosts: all
+  connection: local
+  user: "{{lookup('env','USER')}}"
+  sudo: yes
+  sudo_user: root
+  vars:
+    _HOSTNAME: vm_centos7
+  vars_files:
+    - ./etc/secret
+  tasks:
+    - name: Set hostname
+      hostname: name={{_HOSTNAME}}
+    - name: Copy private keypair
+      copy: src=./etc/id_rsa dest=/home/{{lookup('env','USER')}}/.ssh/id_rsa
+    - name: Backup CentOS-Base.repo
+      shell: mv /etc/yum.repos.d/CentOS-Base.repo /etc/yum.repos.d/CentOS-Base.repo.bak
+      args:
+        creates: /etc/yum.repos.d/CentOS-Base.repo.bak
+    - name: Update to 163 sources
+      get_url: url=http://mirrors.163.com/.help/CentOS7-Base-163.repo dest=/etc/yum.repos.d/CentOS-Base.repo
+    - name: Add epel repository
+      yumrepo:
+        name: epel
+        description: EPEL YUM repo
+        baseurl: http://download.fedoraproject.org/pub/epel/$releasever/$basearch/
+    - name: Ensure software is the lastest version
+      yum: name={{item}} state=latest
+      with_items:
+      - open-vm-tools
+      - open-vm-tools-desktop
+      - samba
+      - git
+    - name: Ensure and upload smb.conf
+      copy: src=./etc/smb.conf dest=/etc/samba/smb.conf
+      notify:
+        - restart smb
+        - restart nmb
+    - name: Ensure firewalld is stopped
+      service: name=firewalld state=stopped enabled=false
+  handlers:
+    - name: restart smb
+      service: name=smb state=restarted
+    - name: restart nmb
+      service: name=nmb state=restarted
+
