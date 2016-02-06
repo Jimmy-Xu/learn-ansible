@@ -1,7 +1,8 @@
+**Running ansible playbook in localhost**
 
 ## Usage
 ```
-$./run.sh centos7
+$./run.sh
 ```
 
 ## Specify sudo password for Ansible
@@ -16,7 +17,7 @@ $ansible_sudo_pass: osboxes.org
 $echo osboxes.org > ./etc/vault.txt
 
 //run
-$ansible-playbook ./playbook-$1.yml -u ${USER} -i "localhost," -c local -v --sudo --vault-password-file=./etc/vault.txt
+$ansible-playbook ./playbook.yml -u ${USER} -i "localhost," -c local -v --sudo --vault-password-file=./etc/vault.txt
 ```
 
 
